@@ -1,10 +1,58 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>自分の評価 - フリマアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
 
+<body>
+<div class="container">
+    <h1>自分の評価</h1>
+    <p>あなたが送信した評価の一覧です。</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>商品名</th>
+            <th>出品者</th>
+            <th>評価</th>
+            <th>コメント</th>
+            <th>評価日時</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <!-- レビュー一覧 -->
+        <tr th:each="review : ${reviews}">
+            <td th:text="${review.item.name}"></td>
+            <td th:text="${review.seller.name}"></td>
+
+            <!-- 星評価 -->
+            <td>
+                <span th:each="i : ${#numbers.sequence(1, 5)}">
+                    <span th:if="${i <= review.rating}">★</span>
+                    <span th:if="${i > review.rating}">☆</span>
+                </span>
+            </td>
+
+            <td th:text="${review.comment}"></td>
+
+            <!-- ★ 改行が入ってエラーになっていたので完全修正済み -->
+            <td th:text="${#temporals.format(review.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+        </tr>
+
+        <!-- 0 件時の表示 -->
+        <tr th:if="${#lists.isEmpty(reviews)}">
+            <td colspan="5">まだ評価を送信していません。</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="button-group">
+        <a th:href="@{/my-page}" class="button secondary">マイページに戻る</a>
+    </div>
+</div>
 </body>
 </html>

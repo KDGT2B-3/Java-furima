@@ -1,10 +1,51 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>商品評価 - フリマアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body>
 
+<body>
+<div class="container">
+
+    <h1>商品評価</h1>
+
+    <!-- 商品名・出品者名 -->
+    <p>
+        商品「<span th:text="${order.item.name}"></span>」の
+        出品者「<span th:text="${order.item.seller.name}"></span>」を評価してください。
+    </p>
+
+    <!-- エラーメッセージ -->
+    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+    <!-- 評価フォーム -->
+    <form th:action="@{/reviews}" method="post">
+
+        <input type="hidden" name="orderId" th:value="${order.id}">
+
+        <!-- 評価点 -->
+        <p>
+            <label for="rating">評価 (1-5):</label>
+            <input type="number" id="rating" name="rating" min="1" max="5" required>
+        </p>
+
+        <!-- コメント -->
+        <p>
+            <label for="comment">コメント (任意):</label>
+            <textarea id="comment" name="comment" rows="5"></textarea>
+        </p>
+
+        <!-- ボタン -->
+        <div class="button-group">
+            <button type="submit">評価を送信</button>
+            <a th:href="@{/my-page/orders}" class="button secondary">キャンセル</a>
+        </div>
+
+    </form>
+
+</div>
 </body>
 </html>
