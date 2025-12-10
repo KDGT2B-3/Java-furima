@@ -17,10 +17,9 @@ public class AdminUserService {
 	private final UserRepository userRepository;
 	private final UserComplaintRepository userComplaintRepository;
 
-	public AdminUserService(UserRepository userRepository, UserComplaintRepositorycomplaintRepository)
-	{
+	public AdminUserService(UserRepository userRepository, UserComplaintRepository userComplaintRepository) {
 		this.userRepository = userRepository;
-		this.complaintRepository = complaintRepository;
+		this.userComplaintRepository = userComplaintRepository;
 	}
 
 	public List<User> listAllUsers() {
@@ -28,7 +27,8 @@ public class AdminUserService {
 	}
 
 	public User findUser(Long id) {
-		return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found: " +id));
+		return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found: " + id));
+	}
 
 	public Double averageRating(Long userId) {
 		Double avg = userRepository.averageRatingForUser(userId);
@@ -36,17 +36,20 @@ public class AdminUserService {
 	}
 
 	public long complaintCount(Long userId) {
-		return complaintRepository.countByReportedUserId(userId);
+
+		return userComplaintRepository.countByReportedUserId(userId);
 	}
 
 	public List<UserComplaint> complaints(Long userId) {
-		return complaintRepository.findByReportedUserIdOrderByCreatedAtDesc(userId);
+
+	public List<UserComplaint> complaints(Long userId) {
+		return userComplaintRepository.findByReportedUserIdOrderByCreatedAtDesc(userId);
 	}
 
 	@Transactional
 	public void banUser(Long targetUserId, Long adminUserId, String reason, boolean alsoDisableLogin) {
 		User u = findUser(targetUserId);
-		u.setBanned(true);
+		u.setBan(true);
 		u.setBanReason(reason);
 		u.setBannedAt(LocalDateTime.now());
 		u.setBannedByAdminId(adminUserId == null ? null : adminUserId.intValue());
