@@ -41,6 +41,15 @@ public class FavoriteService {
 		return favoriteItemRepository.save(favoriteItem);
 	}
 
+	@Transactional
+	public void removeFavorite(User user, Long itemId) {
+		Item item = itemRepository.findById(itemId)
+				.orElseThrow(() -> new IllegalArgumentException("Item not found"));
+		FavoriteItem favoriteItem = favoriteItemRepository.findByUserAndItem(user, item)
+				.orElseThrow(() -> new IllegalStateException("Favorite not found."));
+		favoriteItemRepository.delete(favoriteItem);
+	}
+
 	public boolean isFavorited(User user, Long itemId) {
 
 		Item item = itemRepository.findById(itemId)

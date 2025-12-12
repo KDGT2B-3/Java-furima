@@ -45,7 +45,7 @@ public class AdminUserController {
 		case "email" -> list.stream().sorted(Comparator.comparing(User::getEmail,
 				Comparator.nullsLast(String::compareToIgnoreCase))).toList();
 		case "banned" -> list.stream()
-				.sorted(Comparator.comparing(users::isBanned).reversed()).toList();
+				.sorted(Comparator.comparing(User::isBanned).reversed()).toList();
 		default -> list;
 		};
 		model.addAttribute("users", list);

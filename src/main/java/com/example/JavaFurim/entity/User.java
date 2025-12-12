@@ -1,5 +1,7 @@
 package com.example.JavaFurim.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,4 +34,12 @@ public class User {
 	private String lineNotifyToken;
 	@Column(nullable = false)
 	private boolean enabled = true;
+	@Column(nullable = false)
+	private boolean banned = false;
+	@Column(name = "ban_reason")
+	private String banReason;
+	@Column(name = "banned_at")
+	private LocalDateTime bannedAt;
+	@Column(name = "banned_by_admin_id")
+	private Integer bannedByAdminId;
 }
