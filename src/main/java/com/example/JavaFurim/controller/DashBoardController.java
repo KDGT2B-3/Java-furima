@@ -17,10 +17,10 @@ public class DashBoardController {
 	private final ItemService itemService;
 	private final AppOrderService appOrderService;
 
-	public DashboardController(UserRepository userRepository, ItemService itemService,AppOrderService appOrderService) {
-		this.userRepository = userRepository;
-		this.itemService = itemService;
-		this.appOrderService = appOrderService;
+	public DashboardController(UserRepository userRepository, ItemService itemService, AppOrderService appOrderService) {
+	    this.userRepository = userRepository;
+	    this.itemService = itemService;
+	    this.appOrderService = appOrderService;
 	}
 
 	@GetMapping("/dashboard")

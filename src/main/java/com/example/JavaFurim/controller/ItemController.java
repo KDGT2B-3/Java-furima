@@ -1,7 +1,5 @@
 package com.example.JavaFurim.controller;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;

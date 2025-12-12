@@ -18,7 +18,7 @@ import com.example.JavaFurim.service.AdminUserService;
 @Controller
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
-public class AminUserController {
+public class AdminUserController {
 	private final AdminUserService service;
 	private final UserRepository users;
 
@@ -45,7 +45,7 @@ public class AminUserController {
 		case "email" -> list.stream().sorted(Comparator.comparing(User::getEmail,
 				Comparator.nullsLast(String::compareToIgnoreCase))).toList();
 		case "banned" -> list.stream()
-				.sorted(Comparator.comparing(User::isBanned).reversed()).toList();
+				.sorted(Comparator.comparing(users::isBanned).reversed()).toList();
 		default -> list;
 		};
 		model.addAttribute("users", list);
