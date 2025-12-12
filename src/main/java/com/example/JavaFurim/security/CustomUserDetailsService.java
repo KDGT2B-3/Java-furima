@@ -14,9 +14,10 @@ import com.example.JavaFurim.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+abstract
+
 @Service
-@RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+@RequiredArgsConstructor public class CustomUserDetailsService implements UserDetailsService {
 	private final UserRepository users;
 
 	@Override
