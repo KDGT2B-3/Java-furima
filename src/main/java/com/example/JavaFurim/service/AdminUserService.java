@@ -31,7 +31,7 @@ public class AdminUserService {
 	}
 
 	public Double averageRating(Long userId) {
-		Double avg = userRepository.averageRatingForUser(userId);
+		Double avg = UserRepository.averageRatingForUser(userId);
 		return (avg == null) ? 0.0 : avg;
 	}
 
