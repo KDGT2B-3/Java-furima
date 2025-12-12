@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.JavaFurim.entity.Item;
+import com.example.JavaFurim.entity.User;
 import com.example.JavaFurim.repository.ItemRepository;
 
 @Service
@@ -63,5 +64,30 @@ public class ItemService {
 			item.setImageUrl(imageUrl);
 		}
 		return itemRepository.save(item);
+	}
+
+	public void deleteItem(Long id) {
+		itemRepository.findById(id).ifPresent(item -> {
+			if (item.getImageUrl() != null) {
+				try {
+					cloudinaryService.deleteFile(item.getImageUrl());
+				} catch (IOException e) {
+					System.err.println("Failed to delete image from Cloudinary: " +
+							e.getMessage());
+				}
+			}
+			itemRepository.deleteById(id);
+		});
+	}
+
+	public List<Item> getItemsBySeller(User seller) {
+		return itemRepository.findBySeller(seller);
+	}
+
+	public void markItemAsSold(Long itemId) {
+		itemRepository.findById(itemId).ifPresent(item -> {
+			item.setStatus("売却済");
+			itemRepository.save(item);
+		});
 	}
 }
