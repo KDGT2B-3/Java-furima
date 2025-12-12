@@ -41,8 +41,6 @@ public class AdminUserService {
 	}
 
 	public List<UserComplaint> complaints(Long userId) {
-
-	public List<UserComplaint> complaints(Long userId) {
 		return userComplaintRepository.findByReportedUserIdOrderByCreatedAtDesc(userId);
 	}
 

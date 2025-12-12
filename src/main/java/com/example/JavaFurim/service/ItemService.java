@@ -59,10 +59,9 @@ public class ItemService {
 
 	public Item saveItem(Item item, MultipartFile imageFile) throws IOException {
 		if (imageFile != null && !imageFile.isEmpty()) {
-			// Cloudinaryへアップロードし URL を受け取る
 			String imageUrl = cloudinaryService.uploadFile(imageFile);
-			// 画像 URL をエンティティへ設定
 			item.setImageUrl(imageUrl);
 		}
+		return itemRepository.save(item);
 	}
 }
