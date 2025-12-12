@@ -67,21 +67,13 @@ public class SecurityConfig {
 	// DB からユーザをロードして Spring Security の UserDetails に変換する
 	@Bean
 	public UserDetailsService userDetailsService(UserRepository userRepository) {
-		// email（=username）で検索し、見つかれば UserDetails を組み立てる
 		return email -> userRepository.findByEmail(email)
-				// Map でアプリの User を Spring の User に詰め替える
 				.map(user -> org.springframework.security.core.userdetails.User.builder()
-						// ユーザ名はメール
 						.username(user.getEmail())
-						// パスワード（BCrypt ハッシュ前提）
 						.password(user.getPassword())
-						// ロールは"ADMIN"や"USER"を渡せば自動で"ROLE_"が付与される
 						.roles(user.getRole())
-						// 有効/無効のフラグを反映
 						.disabled(!user.isEnabled())
-						// Builder を閉じて UserDetails を作成
 						.build())
-				// 見つからない場合は例外
 				.orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 	}
 

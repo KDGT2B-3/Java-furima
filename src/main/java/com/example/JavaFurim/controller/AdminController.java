@@ -23,6 +23,7 @@ import com.example.JavaFurim.service.ItemService;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
+
 	private final ItemService itemService;
 	private final AppOrderService appOrderService;
 
@@ -48,42 +49,52 @@ public class AdminController {
 			@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 			@RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			Model model) {
+
 		if (startDate == null)
 			startDate = LocalDate.now().minusMonths(1);
 		if (endDate == null)
 			endDate = LocalDate.now();
+
 		model.addAttribute("startDate", startDate);
 		model.addAttribute("endDate", endDate);
 		model.addAttribute("totalSales", appOrderService.getTotalSales(startDate, endDate));
 		model.addAttribute("orderCountByStatus", appOrderService.getOrderCountByStatus(startDate, endDate));
+
 		return "admin_statistics";
 	}
 
 	@GetMapping("/statistics/csv")
 	public void exportStatisticsCsv(
-			@RequestParam(value = "startDate", required = false)
-			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			@RequestParam(value = "endDate", required = false)
-			@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 			HttpServletResponse response) throws IOException {
+
 		if (startDate == null)
 			startDate = LocalDate.now().minusMonths(1);
 		if (endDate == null)
 			endDate = LocalDate.now();
+
 		response.setContentType("text/csv; charset=UTF-8");
-		response.setHeader("Content-Disposition", "attachment;
-				filename = ¥"flea_market_statistics.csv¥"");
+		response.setHeader("Content-Disposition", "attachment; filename=\"flea_market_statistics.csv\"");
+
 		try (PrintWriter writer = response.getWriter()) {
-			writer.append("統計期間: ").append(String.valueOf(startDate))
-			.append(" から ").append(String.valueOf(endDate))
-			.append("\n\n");
+			writer.append("統計期間: ")
+					.append(String.valueOf(startDate))
+					.append(" から ")
+					.append(String.valueOf(endDate))
+					.append("\n\n");
+
 			writer.append("総売上: ")
-				.append(String.valueOf(appOrderService.getTotalSales(startDate, endDate)))
-				.append("\n\n");
+					.append(String.valueOf(appOrderService.getTotalSales(startDate, endDate)))
+					.append("\n\n");
+
 			writer.append("ステータス別注文数\n");
 			appOrderService.getOrderCountByStatus(startDate, endDate)
-				.forEach((status, count) -> writer.append(status)
-				.append(",").append(String.valueOf(count)).append("\n"));
+					.forEach((status, count) -> writer
+							.append(status)
+							.append(",")
+							.append(String.valueOf(count))
+							.append("\n"));
 		}
 	}
 }
