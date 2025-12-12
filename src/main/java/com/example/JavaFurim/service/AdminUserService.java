@@ -9,15 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.JavaFurim.entity.User;
 import com.example.JavaFurim.entity.UserComplaint;
+import com.example.JavaFurim.repository.ReviewRepository;
 import com.example.JavaFurim.repository.UserComplaintRepository;
 import com.example.JavaFurim.repository.UserRepository;
 
 @Service
 public class AdminUserService {
+	private final ReviewRepository reviewRepository;
 	private final UserRepository userRepository;
 	private final UserComplaintRepository userComplaintRepository;
 
-	public AdminUserService(UserRepository userRepository, UserComplaintRepository userComplaintRepository) {
+	public AdminUserService(ReviewRepository reviewRepository, UserRepository userRepository,
+			UserComplaintRepository userComplaintRepository) {
+		this.reviewRepository = reviewRepository;
 		this.userRepository = userRepository;
 		this.userComplaintRepository = userComplaintRepository;
 	}
@@ -31,7 +35,9 @@ public class AdminUserService {
 	}
 
 	public Double averageRating(Long userId) {
-		Double avg = UserRepository.averageRatingForUser(userId);
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+		Double avg = reviewRepository.averageRatingForUser(user);
 		return (avg == null) ? 0.0 : avg;
 	}
 
@@ -47,7 +53,7 @@ public class AdminUserService {
 	@Transactional
 	public void banUser(Long targetUserId, Long adminUserId, String reason, boolean alsoDisableLogin) {
 		User u = findUser(targetUserId);
-		u.setBan(true);
+		u.setBanned(true);
 		u.setBanReason(reason);
 		u.setBannedAt(LocalDateTime.now());
 		u.setBannedByAdminId(adminUserId == null ? null : adminUserId.intValue());
