@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS chat CASCADE;
 DROP TABLE IF EXISTS app_order CASCADE;
 DROP TABLE IF EXISTS item CASCADE;
 DROP TABLE IF EXISTS category CASCADE;
+DROP TABLE IF EXISTS user_complaint CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 -- ----------------------------------------
@@ -19,7 +20,11 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
     line_notify_token VARCHAR(255),
-    enabled BOOLEAN NOT NULL DEFAULT TRUE
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    banned BOOLEAN NOT NULL DEFAULT FALSE,     
+    ban_reason TEXT,
+    banned_at TIMESTAMP,                        
+    banned_by_admin_id INT
 );
 
 -- ----------------------------------------
@@ -48,7 +53,7 @@ CREATE TABLE item (
 );
 
 -- ----------------------------------------
--- app_order（注文）
+-- app_order（注文）★ payment_intent_id を追加
 -- ----------------------------------------
 CREATE TABLE app_order (
     id SERIAL PRIMARY KEY,
@@ -56,6 +61,7 @@ CREATE TABLE app_order (
     buyer_id INT NOT NULL,
     price NUMERIC(10,2) NOT NULL,
     status VARCHAR(20) DEFAULT '購入済',
+    payment_intent_id VARCHAR(128) UNIQUE,  -- ★ Stripe PaymentIntent ID
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (item_id) REFERENCES item(id),
     FOREIGN KEY (buyer_id) REFERENCES users(id)
@@ -106,27 +112,56 @@ CREATE TABLE review (
 );
 
 -- ----------------------------------------
+-- user_complaint（通報）★ 管理機能で使用
+-- ----------------------------------------
+CREATE TABLE user_complaint (
+    id SERIAL PRIMARY KEY,
+    reported_user_id INT NOT NULL,
+    reporter_user_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reported_user_id) REFERENCES users(id),
+    FOREIGN KEY (reporter_user_id) REFERENCES users(id)
+);
+
+-- ----------------------------------------
 -- インデックス
 -- ----------------------------------------
+CREATE INDEX IF NOT EXISTS idx_users_banned ON users(banned);
+CREATE INDEX IF NOT EXISTS idx_users_banned_by ON users(banned_by_admin_id);
 CREATE INDEX IF NOT EXISTS idx_item_user_id ON item(user_id);
 CREATE INDEX IF NOT EXISTS idx_item_category_id ON item(category_id);
 CREATE INDEX IF NOT EXISTS idx_order_item_id ON app_order(item_id);
 CREATE INDEX IF NOT EXISTS idx_order_buyer_id ON app_order(buyer_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_order_pi ON app_order(payment_intent_id);  -- ★ 追加
 CREATE INDEX IF NOT EXISTS idx_chat_item_id ON chat(item_id);
 CREATE INDEX IF NOT EXISTS idx_chat_sender_id ON chat(sender_id);
 CREATE INDEX IF NOT EXISTS idx_fav_user_id ON favorite_item(user_id);
 CREATE INDEX IF NOT EXISTS idx_fav_item_id ON favorite_item(item_id);
 CREATE INDEX IF NOT EXISTS idx_review_order_id ON review(order_id);
+CREATE INDEX IF NOT EXISTS idx_uc_reported ON user_complaint(reported_user_id);
+CREATE INDEX IF NOT EXISTS idx_uc_reporter ON user_complaint(reporter_user_id);
 
 -- ----------------------------------------
--- 初期データ投入
+-- 初期データ投入（BCrypt ハッシュ化済み）
 -- ----------------------------------------
 
--- Users
-INSERT INTO users (name, email, password, role) VALUES
-('出品者 A', 'sellerA@example.com', 'password', 'USER'),
-('購入者 B', 'buyerB@example.com', 'password', 'USER'),
-('運営者 C', 'adminC@example.com', 'adminpass', 'ADMIN');
+-- Users（★ BCrypt ハッシュに変更）
+INSERT INTO users (name, email, password, role, enabled) VALUES
+('出品者 A', 'sellerA@example.com', 
+ '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCu', 
+ 'USER', TRUE),
+-- パスワード: password
+
+('購入者 B', 'buyerB@example.com', 
+ '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCu', 
+ 'USER', TRUE),
+-- パスワード: password
+
+('運営者 C', 'adminC@example.com', 
+ '$2a$10$xn3LI/AjqicNrfOCKJ4QeeRo6F3lhJmOGfgCW/pAuYzaGPFBwTaxy', 
+ 'ADMIN', TRUE);
+-- パスワード: adminpass
 
 -- Category
 INSERT INTO category (name) VALUES
@@ -156,12 +191,3 @@ VALUES
     '出品中',
     NULL
 );
-
--- 注文サンプル（必要ならコメント解除）
--- INSERT INTO app_order (item_id, buyer_id, price, status)
--- VALUES (
---     (SELECT id FROM item WHERE name = 'Java プログラミング入門'),
---     (SELECT id FROM users WHERE email = 'buyerB@example.com'),
---     1500.00,
---     '購入済'
--- );
