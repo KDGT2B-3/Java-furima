@@ -36,7 +36,7 @@ CREATE TABLE item (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price NUMERIC(10,2) NOT NULL,
-    original_price NUMERIC(10,2) NOT NULL,
+    originalprice NUMERIC(10,2) NOT NULL,
     category_id INT,
     status VARCHAR(20) DEFAULT '出品中',
     image_url TEXT,
