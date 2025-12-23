@@ -1,6 +1,7 @@
 package com.example.JavaFurim.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ public class ItemService {
 	private final CategoryService categoryService;
 
 	private final CloudinaryService cloudinaryService;
+
+	private static final BigDecimal MAX_RATE = new BigDecimal("1.8");
 
 	public ItemService(ItemRepository itemRepository, CategoryService categoryService,
 			CloudinaryService cloudinaryService) {
@@ -59,10 +62,19 @@ public class ItemService {
 	}
 
 	public Item saveItem(Item item, MultipartFile imageFile) throws IOException {
+
+		BigDecimal limit = item.getOriginalPrice().multiply(MAX_RATE);
+
+		if (item.getPrice().compareTo(limit) > 0) {
+			throw new IllegalArgumentException(
+					"出品価格は元値の1.8倍までにしてください");
+		}
+
 		if (imageFile != null && !imageFile.isEmpty()) {
 			String imageUrl = cloudinaryService.uploadFile(imageFile);
 			item.setImageUrl(imageUrl);
 		}
+
 		return itemRepository.save(item);
 	}
 

@@ -102,6 +102,7 @@ public class ItemController {
 			@RequestParam("name") String name,
 			@RequestParam("description") String description,
 			@RequestParam("price") BigDecimal price,
+			@RequestParam("originalPrice") BigDecimal originalPrice,
 			@RequestParam("categoryId") Long categoryId,
 			@RequestParam(value = "image", required = false) MultipartFile imageFile,
 			RedirectAttributes redirectAttributes) {
@@ -114,11 +115,15 @@ public class ItemController {
 		item.setName(name);
 		item.setDescription(description);
 		item.setPrice(price);
+		item.setOriginalPrice(originalPrice);
 		item.setCategory(category);
 		try {
 			itemService.saveItem(item, imageFile);
 			redirectAttributes.addFlashAttribute("successMessage",
 					"商品を出品しました！");
+		} catch (IllegalArgumentException e) {
+			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+			return "redirect:/items/new";
 		} catch (IOException e) {
 			redirectAttributes.addFlashAttribute("errorMessage",
 					"画像のアップロードに失敗しました: " + e.getMessage());

@@ -40,6 +40,9 @@ public class Item {
 	@Column(nullable = false)
 	private BigDecimal price;
 
+	@Column(nullable = false)
+	private BigDecimal originalPrice;
+
 	@ManyToOne
 	@JoinColumn(name = "category_id")
 	private Category category;

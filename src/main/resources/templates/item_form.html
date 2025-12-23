@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
@@ -13,39 +14,73 @@
     <h1 th:text="${item.id == null ? '商品出品' : '商品編集'}"></h1>
 
     <!-- エラーメッセージ -->
-    <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    <div th:if="${errorMessage}"
+         class="error-message"
+         th:text="${errorMessage}"></div>
 
     <!-- フォーム開始 -->
     <form th:action="${item.id == null ? '/items' : '/items/' + item.id}"
-          method="post" enctype="multipart/form-data">
+          method="post"
+          enctype="multipart/form-data">
 
-        <!-- 編集時のみ PUT メソッド -->
-        
+        <!-- 編集時のみ（HiddenHttpMethodFilter用） -->
+        <input type="hidden"
+               th:if="${item.id != null}"
+               name="_method"
+               value="put">
 
         <!-- 商品名 -->
         <p>
-            <label for="name">商品名:</label>
-            <input type="text" id="name" name="name" th:value="${item.name}" required>
+            <label for="name">商品名</label><br>
+            <input type="text"
+                   id="name"
+                   name="name"
+                   th:value="${item.name}"
+                   required>
         </p>
 
         <!-- 商品説明 -->
         <p>
-            <label for="description">商品説明:</label>
-            <textarea id="description" name="description"
-                      rows="5" th:text="${item.description}"></textarea>
+            <label for="description">商品説明</label><br>
+            <textarea id="description"
+                      name="description"
+                      rows="5"
+                      th:text="${item.description}"></textarea>
         </p>
 
-        <!-- 価格 -->
+        <!-- 元値（新規出品時のみ） -->
+        <p th:if="${item.id == null}">
+            <label for="originalPrice">元値 (¥)</label><br>
+            <input type="number"
+                   id="originalPrice"
+                   name="originalPrice"
+                   step="0.01"
+                   required>
+        </p>
+
+        <!-- 編集時は元値を変更不可（hiddenで保持） -->
+        <input type="hidden"
+               th:if="${item.id != null}"
+               name="originalPrice"
+               th:value="${item.originalPrice}">
+
+        <!-- 出品価格 -->
         <p>
-            <label for="price">価格 (¥):</label>
-            <input type="number" id="price" name="price"
-                   step="0.01" th:value="${item.price}" required>
+            <label for="price">出品価格 (¥)</label><br>
+            <input type="number"
+                   id="price"
+                   name="price"
+                   step="0.01"
+                   th:value="${item.price}"
+                   required>
         </p>
 
         <!-- カテゴリ -->
         <p>
-            <label for="categoryId">カテゴリ:</label>
-            <select id="categoryId" name="categoryId" required>
+            <label for="categoryId">カテゴリ</label><br>
+            <select id="categoryId"
+                    name="categoryId"
+                    required>
                 <option value="">選択してください</option>
                 <option th:each="category : ${categories}"
                         th:value="${category.id}"
@@ -57,18 +92,24 @@
 
         <!-- 画像アップロード -->
         <p>
-            <label for="image">商品画像:</label>
-            <input type="file" id="image" name="image" accept="image/*">
+            <label for="image">商品画像</label><br>
+            <input type="file"
+                   id="image"
+                   name="image"
+                   accept="image/*">
 
             <span th:if="${item.imageUrl}">
-                現在の画像:
-                <img th:src="${item.imageUrl}" style="width: 100px; height: auto;">
+                <br>現在の画像:<br>
+                <img th:src="${item.imageUrl}"
+                     style="width:100px;height:auto;">
             </span>
         </p>
 
         <!-- ボタン -->
         <div class="button-group">
-            <button type="submit" th:text="${item.id == null ? '出品する' : '更新する'}"></button>
+            <button type="submit"
+                    th:text="${item.id == null ? '出品する' : '更新する'}">
+            </button>
             <a th:href="@{/items}" class="button secondary">キャンセル</a>
         </div>
 
