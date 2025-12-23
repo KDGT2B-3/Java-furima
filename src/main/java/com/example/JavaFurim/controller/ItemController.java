@@ -2,8 +2,6 @@ package com.example.JavaFurim.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.JavaFurim.entity.Category;
 import com.example.JavaFurim.entity.Item;
@@ -31,6 +28,7 @@ import com.example.JavaFurim.service.UserService;
 @Controller
 @RequestMapping("/items")
 public class ItemController {
+
 	private final ItemService itemService;
 	private final CategoryService categoryService;
 	private final UserService userService;
@@ -53,6 +51,8 @@ public class ItemController {
 		this.reviewService = reviewService;
 	}
 
+	/* ===================== 商品一覧 ===================== */
+
 	@GetMapping
 	public String listItems(
 			@RequestParam(value = "keyword", required = false) String keyword,
@@ -60,34 +60,42 @@ public class ItemController {
 			@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "size", defaultValue = "10") int size,
 			Model model) {
+
 		Page<Item> items = itemService.searchItems(keyword, categoryId, page, size);
-		List<Category> categories = categoryService.getAllCategories();
 		model.addAttribute("items", items);
-		model.addAttribute("categories", categories);
+		model.addAttribute("categories", categoryService.getAllCategories());
 		return "item_list";
 	}
 
+	/* ===================== 商品詳細 ===================== */
+
 	@GetMapping("/{id}")
 	public String showItemDetail(
-			@PathVariable("id") Long id,
+			@PathVariable Long id,
 			@AuthenticationPrincipal UserDetails userDetails,
 			Model model) {
-		Optional<Item> item = itemService.getItemById(id);
-		if (item.isEmpty()) {
-			return "redirect:/items"; // Item not found
-		}
-		model.addAttribute("item", item.get());
+
+		Item item = itemService.getItemById(id)
+				.orElseThrow(() -> new RuntimeException("Item not found"));
+
+		model.addAttribute("item", item);
 		model.addAttribute("chats", chatService.getChatMessagesByItem(id));
-		reviewService.getAverageRatingForSeller(item.get().getSeller())
+
+		reviewService.getAverageRatingForSeller(item.getSeller())
 				.ifPresent(avg -> model.addAttribute("sellerAverageRating",
 						String.format("%.1f", avg)));
+
 		if (userDetails != null) {
 			User currentUser = userService.getUserByEmail(userDetails.getUsername())
-					.orElseThrow(() -> new RuntimeException("User not found"));
-			model.addAttribute("isFavorited", favoriteService.isFavorited(currentUser, id));
+					.orElseThrow();
+			model.addAttribute("isFavorited",
+					favoriteService.isFavorited(currentUser, id));
 		}
+
 		return "item_detail";
 	}
+
+	/* ===================== 出品フォーム ===================== */
 
 	@GetMapping("/new")
 	public String showAddItemForm(Model model) {
@@ -96,20 +104,25 @@ public class ItemController {
 		return "item_form";
 	}
 
+	/* ===================== 出品処理 ===================== */
+
 	@PostMapping
 	public String addItem(
 			@AuthenticationPrincipal UserDetails userDetails,
-			@RequestParam("name") String name,
-			@RequestParam("description") String description,
-			@RequestParam("price") BigDecimal price,
-			@RequestParam("originalPrice") BigDecimal originalPrice,
-			@RequestParam("categoryId") Long categoryId,
+			@RequestParam String name,
+			@RequestParam String description,
+			@RequestParam BigDecimal price,
+			@RequestParam BigDecimal originalPrice,
+			@RequestParam Long categoryId,
 			@RequestParam(value = "image", required = false) MultipartFile imageFile,
-			RedirectAttributes redirectAttributes) {
+			Model model) {
+
 		User seller = userService.getUserByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new RuntimeException("Seller not found"));
+				.orElseThrow();
+
 		Category category = categoryService.getCategoryById(categoryId)
-				.orElseThrow(() -> new IllegalArgumentException("Category not found"));
+				.orElseThrow();
+
 		Item item = new Item();
 		item.setSeller(seller);
 		item.setName(name);
@@ -117,118 +130,79 @@ public class ItemController {
 		item.setPrice(price);
 		item.setOriginalPrice(originalPrice);
 		item.setCategory(category);
+
 		try {
 			itemService.saveItem(item, imageFile);
-			redirectAttributes.addFlashAttribute("successMessage",
-					"商品を出品しました！");
+			return "redirect:/items";
+
 		} catch (IllegalArgumentException e) {
-			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-			return "redirect:/items/new";
+			// 価格1.8倍超過など
+			model.addAttribute("errorMessage", e.getMessage());
+			model.addAttribute("item", item);
+			model.addAttribute("categories", categoryService.getAllCategories());
+			return "item_form";
+
 		} catch (IOException e) {
-			redirectAttributes.addFlashAttribute("errorMessage",
-					"画像のアップロードに失敗しました: " + e.getMessage());
-			return "redirect:/items/new";
+			model.addAttribute("errorMessage", "画像のアップロードに失敗しました");
+			model.addAttribute("item", item);
+			model.addAttribute("categories", categoryService.getAllCategories());
+			return "item_form";
 		}
-		return "redirect:/items";
 	}
 
+	/* ===================== 編集フォーム ===================== */
+
 	@GetMapping("/{id}/edit")
-	public String showEditItemForm(@PathVariable("id") Long id, Model model) {
-		Optional<Item> item = itemService.getItemById(id);
-		if (item.isEmpty()) {
-			return "redirect:/items";
-		}
-		model.addAttribute("item", item.get());
+	public String showEditItemForm(@PathVariable Long id, Model model) {
+		Item item = itemService.getItemById(id)
+				.orElseThrow();
+		model.addAttribute("item", item);
 		model.addAttribute("categories", categoryService.getAllCategories());
 		return "item_form";
 	}
 
-	@PostMapping("/{id}") // Using POST for simplicity, can be PUT with HiddenHttpMethodFilter
+	/* ===================== 更新処理 ===================== */
+
+	@PostMapping("/{id}")
 	public String updateItem(
-			@PathVariable("id") Long id,
+			@PathVariable Long id,
 			@AuthenticationPrincipal UserDetails userDetails,
-			@RequestParam("name") String name,
-			@RequestParam("description") String description,
-			@RequestParam("price") BigDecimal price,
-			@RequestParam("categoryId") Long categoryId,
+			@RequestParam String name,
+			@RequestParam String description,
+			@RequestParam BigDecimal price,
+			@RequestParam Long categoryId,
 			@RequestParam(value = "image", required = false) MultipartFile imageFile,
-			RedirectAttributes redirectAttributes) {
-		Item existingItem = itemService.getItemById(id)
-				.orElseThrow(() -> new RuntimeException("Item not found"));
+			Model model) {
+
+		Item item = itemService.getItemById(id)
+				.orElseThrow();
+
 		User currentUser = userService.getUserByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
-		if (!existingItem.getSeller().getId().equals(currentUser.getId())) {
-			redirectAttributes.addFlashAttribute("errorMessage",
-					"この商品は編集できません。");
+				.orElseThrow();
+
+		if (!item.getSeller().getId().equals(currentUser.getId())) {
 			return "redirect:/items";
 		}
-		Category category = categoryService.getCategoryById(categoryId)
-				.orElseThrow(() -> new IllegalArgumentException("Category not found"));
-		existingItem.setName(name);
-		existingItem.setDescription(description);
-		existingItem.setPrice(price);
-		existingItem.setCategory(category);
+
+		item.setName(name);
+		item.setDescription(description);
+		item.setPrice(price);
+		item.setCategory(
+				categoryService.getCategoryById(categoryId).orElseThrow());
+
 		try {
-			itemService.saveItem(existingItem, imageFile);
-			redirectAttributes.addFlashAttribute("successMessage",
-					"商品を更新しました！");
+			itemService.saveItem(item, imageFile);
+			return "redirect:/items/" + id;
+
+		} catch (IllegalArgumentException e) {
+			model.addAttribute("errorMessage", e.getMessage());
+			model.addAttribute("item", item);
+			model.addAttribute("categories", categoryService.getAllCategories());
+			return "item_form";
+
 		} catch (IOException e) {
-			redirectAttributes.addFlashAttribute("errorMessage",
-					"画像のアップロードに失敗しました: " + e.getMessage());
-			return "redirect:/items/{id}/edit";
+			model.addAttribute("errorMessage", "画像のアップロードに失敗しました");
+			return "item_form";
 		}
-		return "redirect:/items/{id}";
-	}
-
-	@PostMapping("/{id}/delete")
-	public String deleteItem(
-			@PathVariable("id") Long id,
-			@AuthenticationPrincipal UserDetails userDetails,
-			RedirectAttributes redirectAttributes) {
-		Item itemToDelete = itemService.getItemById(id)
-				.orElseThrow(() -> new RuntimeException("Item not found"));
-		User currentUser = userService.getUserByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
-		if (!itemToDelete.getSeller().getId().equals(currentUser.getId())) {
-			redirectAttributes.addFlashAttribute("errorMessage", "この商品は削除できません。");
-			return "redirect:/items";
-		}
-		itemService.deleteItem(id);
-		redirectAttributes.addFlashAttribute("successMessage", "商品を削除しました。");
-		return "redirect:/items";
-	}
-
-	@PostMapping("/{id}/favorite")
-	public String addFavorite(
-			@PathVariable("id") Long itemId,
-			@AuthenticationPrincipal UserDetails userDetails,
-			RedirectAttributes redirectAttributes) {
-		User currentUser = userService.getUserByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
-		try {
-			favoriteService.addFavorite(currentUser, itemId);
-			// 正常時メッセージを設定
-			redirectAttributes.addFlashAttribute("successMessage",
-					"お気に入りに追加しました！");
-		} catch (IllegalStateException e) {
-			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-		}
-		return "redirect:/items/{id}";
-	}
-
-	@PostMapping("/{id}/unfavorite")
-	public String removeFavorite(
-			@PathVariable("id") Long itemId,
-			@AuthenticationPrincipal UserDetails userDetails,
-			RedirectAttributes redirectAttributes) {
-		User currentUser = userService.getUserByEmail(userDetails.getUsername())
-				.orElseThrow(() -> new RuntimeException("User not found"));
-		try {
-			favoriteService.removeFavorite(currentUser, itemId);
-			redirectAttributes.addFlashAttribute("successMessage", "お気に入りから削除しました。");
-		} catch (IllegalStateException e) {
-			redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-		}
-		return "redirect:/items/{id}";
 	}
 }

@@ -1,28 +1,48 @@
 package com.example.JavaFurim.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.JavaFurim.entity.Category;
 import com.example.JavaFurim.entity.Item;
 import com.example.JavaFurim.entity.User;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-	Page<Item> findByNameContainingIgnoreCaseAndStatus(String name, String status, Pageable pageable);
 
-	Page<Item> findByCategoryIdAndStatus(Long categoryId, String status, Pageable pageable);
+	// ===== 既存機能 =====
 
-	// 名前の部分一致 + カテゴリ ID + ステータスでページング検索
-	Page<Item> findByNameContainingIgnoreCaseAndCategoryIdAndStatus(String name, Long categoryId, String status,
-			Pageable pageable);
+	Page<Item> findByNameContainingIgnoreCaseAndStatus(
+			String name, String status, Pageable pageable);
 
-	// ステータスのみでページング取得（公開中一覧など）
+	Page<Item> findByCategoryIdAndStatus(
+			Long categoryId, String status, Pageable pageable);
+
+	Page<Item> findByNameContainingIgnoreCaseAndCategoryIdAndStatus(
+			String name, Long categoryId, String status, Pageable pageable);
+
 	Page<Item> findByStatus(String status, Pageable pageable);
 
-	// 出品者ごとの商品一覧
 	List<Item> findBySeller(User seller);
+
+	// ===== 追加：短期間・大量出品チェック用 =====
+
+	@Query("""
+			    SELECT COUNT(i)
+			    FROM Item i
+			    WHERE i.seller = :seller
+			      AND i.category = :category
+			      AND i.createdAt >= :fromDate
+			""")
+	long countRecentItemsBySellerAndCategory(
+			@Param("seller") User seller,
+			@Param("category") Category category,
+			@Param("fromDate") LocalDateTime fromDate);
 }

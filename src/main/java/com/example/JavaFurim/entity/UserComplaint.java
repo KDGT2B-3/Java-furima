@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserComplaint {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY) // Auto Increment
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(name = "reported_user_id", nullable = false)
