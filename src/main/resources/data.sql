@@ -1,6 +1,4 @@
--- ----------------------------------------
--- クリーンスタート（開発用）
--- ----------------------------------------
+-- 1. 既存のテーブルをすべて削除（リセット）
 DROP TABLE IF EXISTS review CASCADE;
 DROP TABLE IF EXISTS favorite_item CASCADE;
 DROP TABLE IF EXISTS chat CASCADE;
@@ -10,9 +8,7 @@ DROP TABLE IF EXISTS category CASCADE;
 DROP TABLE IF EXISTS user_complaint CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
--- ----------------------------------------
--- users（ユーザー）
--- ----------------------------------------
+-- 2. usersテーブルを作成（ban_reason を確実に含める）
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -22,22 +18,18 @@ CREATE TABLE users (
     line_notify_token VARCHAR(255),
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,     
-    ban_reason TEXT,
+    ban_reason TEXT,                            -- ← これが必要！
     banned_at TIMESTAMP,                        
     banned_by_admin_id INT
 );
 
--- ----------------------------------------
--- category（カテゴリ）
--- ----------------------------------------
+-- 3. カテゴリテーブル作成
 CREATE TABLE category (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- ----------------------------------------
--- item（商品）
--- ----------------------------------------
+-- 4. 商品テーブル作成
 CREATE TABLE item (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -52,142 +44,14 @@ CREATE TABLE item (
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
--- ----------------------------------------
--- app_order（注文）★ payment_intent_id を追加
--- ----------------------------------------
-CREATE TABLE app_order (
-    id SERIAL PRIMARY KEY,
-    item_id INT NOT NULL,
-    buyer_id INT NOT NULL,
-    price NUMERIC(10,2) NOT NULL,
-    status VARCHAR(20) DEFAULT '購入済',
-    payment_intent_id VARCHAR(128) UNIQUE,  -- ★ Stripe PaymentIntent ID
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (item_id) REFERENCES item(id),
-    FOREIGN KEY (buyer_id) REFERENCES users(id)
-);
+-- 5. 初期データ投入（{noop} 形式）
+INSERT INTO users (name, email, password, role, enabled, banned) VALUES
+('出品者 A', 'sellerA@example.com', '{noop}password',  'USER',  TRUE, FALSE),
+('購入者 B', 'xyz@example.com',      '{noop}password',  'USER',  TRUE, FALSE),
+('運営者 C', 'adminC@example.com',   '{noop}adminpass', 'ADMIN', TRUE, FALSE);
 
--- ----------------------------------------
--- chat（チャット）
--- ----------------------------------------
-CREATE TABLE chat (
-    id SERIAL PRIMARY KEY,
-    item_id INT NOT NULL,
-    sender_id INT NOT NULL,
-    message TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (item_id) REFERENCES item(id),
-    FOREIGN KEY (sender_id) REFERENCES users(id)
-);
-
--- ----------------------------------------
--- favorite_item（お気に入り）
--- ----------------------------------------
-CREATE TABLE favorite_item (
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
-    item_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, item_id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (item_id) REFERENCES item(id)
-);
-
--- ----------------------------------------
--- review（評価）
--- ----------------------------------------
-CREATE TABLE review (
-    id SERIAL PRIMARY KEY,
-    order_id INT NOT NULL UNIQUE,
-    reviewer_id INT NOT NULL,
-    seller_id INT NOT NULL,
-    item_id INT NOT NULL,
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES app_order(id),
-    FOREIGN KEY (reviewer_id) REFERENCES users(id),
-    FOREIGN KEY (seller_id) REFERENCES users(id),
-    FOREIGN KEY (item_id) REFERENCES item(id)
-);
-
--- ----------------------------------------
--- user_complaint（通報）★ 管理機能で使用
--- ----------------------------------------
-CREATE TABLE user_complaint (
-    id SERIAL PRIMARY KEY,
-    reported_user_id INT NOT NULL,
-    reporter_user_id INT NOT NULL,
-    reason TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (reported_user_id) REFERENCES users(id),
-    FOREIGN KEY (reporter_user_id) REFERENCES users(id)
-);
-
--- ----------------------------------------
--- インデックス
--- ----------------------------------------
-CREATE INDEX IF NOT EXISTS idx_users_banned ON users(banned);
-CREATE INDEX IF NOT EXISTS idx_users_banned_by ON users(banned_by_admin_id);
-CREATE INDEX IF NOT EXISTS idx_item_user_id ON item(user_id);
-CREATE INDEX IF NOT EXISTS idx_item_category_id ON item(category_id);
-CREATE INDEX IF NOT EXISTS idx_order_item_id ON app_order(item_id);
-CREATE INDEX IF NOT EXISTS idx_order_buyer_id ON app_order(buyer_id);
-CREATE UNIQUE INDEX IF NOT EXISTS ux_order_pi ON app_order(payment_intent_id);  -- ★ 追加
-CREATE INDEX IF NOT EXISTS idx_chat_item_id ON chat(item_id);
-CREATE INDEX IF NOT EXISTS idx_chat_sender_id ON chat(sender_id);
-CREATE INDEX IF NOT EXISTS idx_fav_user_id ON favorite_item(user_id);
-CREATE INDEX IF NOT EXISTS idx_fav_item_id ON favorite_item(item_id);
-CREATE INDEX IF NOT EXISTS idx_review_order_id ON review(order_id);
-CREATE INDEX IF NOT EXISTS idx_uc_reported ON user_complaint(reported_user_id);
-CREATE INDEX IF NOT EXISTS idx_uc_reporter ON user_complaint(reporter_user_id);
-
--- ----------------------------------------
--- 初期データ投入（BCrypt ハッシュ化済み）
--- ----------------------------------------
-
--- Users（★ BCrypt ハッシュに変更）
-INSERT INTO users (name, email, password, role, enabled) VALUES
-('出品者 A', 'sellerA@example.com', 
- '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCu', 
- 'USER', TRUE),
--- パスワード: password
-
-('購入者 B', 'buyerB@example.com', 
- '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhCu', 
- 'USER', TRUE),
--- パスワード: password
-
-('運営者 C', 'adminC@example.com', 
- '$2a$10$xn3LI/AjqicNrfOCKJ4QeeRo6F3lhJmOGfgCW/pAuYzaGPFBwTaxy', 
- 'ADMIN', TRUE);
--- パスワード: adminpass
-
--- Category
 INSERT INTO category (name) VALUES
-('本'),
-('家電'),
-('ファッション'),
-('おもちゃ');
+('本'), ('家電'), ('ファッション'), ('おもちゃ'), ('文房具');
 
--- 商品データ
-INSERT INTO item (user_id, name, description, price, category_id, status, image_url)
-VALUES
-(
-    (SELECT id FROM users WHERE email = 'sellerA@example.com'),
-    'Java プログラミング入門',
-    '初心者向けの Java 入門書です。',
-    1500.00,
-    (SELECT id FROM category WHERE name = '本'),
-    '出品中',
-    NULL
-),
-(
-    (SELECT id FROM users WHERE email = 'sellerA@example.com'),
-    'ワイヤレスイヤホン',
-    'ノイズキャンセリング機能付き。',
-    8000.00,
-    (SELECT id FROM category WHERE name = '家電'),
-    '出品中',
-    NULL
-);
+INSERT INTO item (user_id, name, description, price, category_id, status) VALUES
+((SELECT id FROM users WHERE email='sellerA@example.com'), 'Java入門', '初心者向け', 1500, (SELECT id FROM category WHERE name='本'), '出品中');

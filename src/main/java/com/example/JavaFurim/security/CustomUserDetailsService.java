@@ -37,9 +37,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 		}
 
 		// Spring Security 用のユーザーオブジェクトを返す
+		String roleName = u.getRole().startsWith("ROLE_") ? u.getRole() : "ROLE_" + u.getRole();
 		return new org.springframework.security.core.userdetails.User(
 				u.getEmail(),
 				u.getPassword(),
-				List.of(new SimpleGrantedAuthority("ROLE_" + u.getRole())));
+				List.of(new SimpleGrantedAuthority(roleName)));
 	}
 }
