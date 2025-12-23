@@ -36,6 +36,7 @@ CREATE TABLE item (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price NUMERIC(10,2) NOT NULL,
+    original_price NUMERIC(10,2) NOT NULL,
     category_id INT,
     status VARCHAR(20) DEFAULT '出品中',
     image_url TEXT,
@@ -54,4 +55,4 @@ INSERT INTO category (name) VALUES
 ('本'), ('家電'), ('ファッション'), ('おもちゃ'), ('文房具');
 
 INSERT INTO item (user_id, name, description, price, category_id, status) VALUES
-((SELECT id FROM users WHERE email='sellerA@example.com'), 'Java入門', '初心者向け', 1500, (SELECT id FROM category WHERE name='本'), '出品中');
+((SELECT id FROM users WHERE email='sellerA@example.com'), 'Java入門', '初心者向け', 1500, 1000, (SELECT id FROM category WHERE name='本'), '出品中');
