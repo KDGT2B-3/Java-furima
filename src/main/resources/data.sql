@@ -54,5 +54,5 @@ INSERT INTO users (name, email, password, role, enabled, banned) VALUES
 INSERT INTO category (name) VALUES
 ('本'), ('家電'), ('ファッション'), ('おもちゃ'), ('文房具');
 
-INSERT INTO item (user_id, name, description, price, original_price, category_id, status) VALUES
+INSERT INTO item (user_id, name, description, price, originalprice, category_id, status) VALUES
 ((SELECT id FROM users WHERE email='sellerA@example.com'), 'Java入門', '初心者向け', 1500, 1000, (SELECT id FROM category WHERE name='本'), '出品中');
