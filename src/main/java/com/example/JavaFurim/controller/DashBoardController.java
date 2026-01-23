@@ -24,7 +24,7 @@ public class DashBoardController {
 		this.appOrderService = appOrderService;
 	}
 
-	@GetMapping("/dashboard")
+	@GetMapping("/admin_dashboard")
 	public String dashboard(
 			@AuthenticationPrincipal UserDetails userDetails, Model model) {
 		User currentUser = userRepository.findByEmailIgnoreCase(userDetails.getUsername())
@@ -32,7 +32,7 @@ public class DashBoardController {
 		if ("ADMIN".equals(currentUser.getRole())) {
 			model.addAttribute("recentItems", itemService.getAllItems());
 			model.addAttribute("recentOrders", appOrderService.getAllOrders());
-			return "admin_dashboard";
+			return "admin/admin_dashboard";
 		} else {
 			return "redirect:/items";
 		}

@@ -18,7 +18,7 @@ CREATE TABLE users (
     line_notify_token VARCHAR(255),
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     banned BOOLEAN NOT NULL DEFAULT FALSE,     
-    ban_reason TEXT,                            -- ← これが必要！
+    ban_reason TEXT,                        
     banned_at TIMESTAMP,                        
     banned_by_admin_id INT
 );

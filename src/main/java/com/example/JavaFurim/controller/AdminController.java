@@ -32,10 +32,18 @@ public class AdminController {
 		this.appOrderService = appOrderService;
 	}
 
+	@GetMapping("/admin_dashboard")
+	public String dashboard(Model model) {
+		model.addAttribute("recentItems", itemService.getAllItems().stream().limit(5).toList());
+		model.addAttribute("recentOrders", appOrderService.getAllOrders().stream().limit(5).toList());
+
+		return "admin/admin_dashboard";
+	}
+
 	@GetMapping("/items")
 	public String manageItems(Model model) {
 		model.addAttribute("items", itemService.getAllItems());
-		return "admin_items";
+		return "admin/admin_items";
 	}
 
 	@PostMapping("/items/{id}/delete")
@@ -60,7 +68,7 @@ public class AdminController {
 		model.addAttribute("totalSales", appOrderService.getTotalSales(startDate, endDate));
 		model.addAttribute("orderCountByStatus", appOrderService.getOrderCountByStatus(startDate, endDate));
 
-		return "admin_statistics";
+		return "admin/admin_statistics";
 	}
 
 	@GetMapping("/statistics/csv")

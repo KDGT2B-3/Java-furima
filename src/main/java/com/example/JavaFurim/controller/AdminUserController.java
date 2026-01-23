@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -19,12 +21,14 @@ import com.example.JavaFurim.service.AdminUserService;
 @RequestMapping("/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
+
 	private final AdminUserService service;
 	private final UserRepository users;
 
 	public AdminUserController(AdminUserService service, UserRepository users) {
 		this.service = service;
 		this.users = users;
+
 	}
 
 	@GetMapping
@@ -51,7 +55,16 @@ public class AdminUserController {
 		model.addAttribute("users", list);
 		model.addAttribute("q", q);
 		model.addAttribute("sort", sort);
-		return "admin/users/list";
+		return "admin/admin_users";
+	}
+
+	@PostMapping("/{id}/toggle-enabled")
+	public String toggleEnabled(@PathVariable("id") Long id) {
+		User user = users.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + id));
+		user.setEnabled(!user.isEnabled());
+		users.save(user);
+		return "redirect:/admin/users";
 	}
 
 }
