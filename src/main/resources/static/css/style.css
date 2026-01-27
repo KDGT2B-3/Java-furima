@@ -591,4 +591,26 @@ td span {
     .button, button { width: 100%; }
     table { display: block; overflow-x: auto; white-space: nowrap; }
     .item-detail { display: block; }
+	
+header .logo {
+	   /* Google Fontsを適用 */
+	   font-family: 'M PLUS Rounded 1c', sans-serif;
+	   font-size: 26px;      /* 少し大きく */
+	   font-weight: 800;      /* かなり太めに */
+	   letter-spacing: 0.5px; /* 文字間隔を少し広げる */
+	    
+	   /* 色のカスタマイズ（グラデーションにする場合） */
+	   background: linear-gradient(45deg, var(--primary-color), #6a89cc);
+	   -webkit-background-clip: text;
+	  -webkit-text-fill-color: transparent;
+	    
+	   /* マウスを乗せた時の動き */
+	   transition: transform 0.3s ease;
+	   display: inline-block;
+	   text-decoration: none !important; /* 下線を消す */
+	}
+
+header .logo:hover {
+	    transform: scale(1.05); /* 少し膨らむアニメーション */
+}
 }
