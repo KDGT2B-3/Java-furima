@@ -257,3 +257,72 @@ table td {
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
+
+.hamburger-menu {
+    position: relative;
+}
+
+/* チェックボックス非表示 */
+#menu-toggle {
+    display: none;
+}
+
+/* 三本線 */
+.menu-icon {
+    width: 30px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.menu-icon span {
+    height: 3px;
+    background: #333;
+    border-radius: 2px;
+}
+
+/* メニュー本体 */
+.menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 200px;
+    background: #fff;
+    border: 1px solid #ddd;
+    display: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.menu li {
+    border-bottom: 1px solid #eee;
+}
+
+.menu li a,
+.logout-btn {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu li a:hover,
+.logout-btn:hover {
+    background: #f5f5f5;
+}
+
+/* チェックされたら表示 */
+#menu-toggle:checked + .menu-icon + .menu {
+    display: block;
+}
