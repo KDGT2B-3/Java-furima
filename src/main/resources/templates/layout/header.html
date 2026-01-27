@@ -1,9 +1,11 @@
 <div th:fragment="header">
 
     <header class="header">
-        <h1 class="logo">
-            <a th:href="@{/items}">フリマアプリ</a>
-        </h1>
+		<h1 class="logo">
+		    <a th:href="@{/items}">
+		        <img th:src="@{/images/logo.png}" alt="フリマアプリ">
+		    </a>
+		</h1>
 
         <div class="hamburger-menu">
             <input type="checkbox" id="menu-toggle-header">
