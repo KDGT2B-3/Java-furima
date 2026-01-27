@@ -17,8 +17,8 @@
                 <ul>
                     <li><a th:href="@{/items}">商品一覧</a></li>
                     <li><a th:href="@{/items/new}">出品する</a></li>
-                    <li><a th:href="@{/mypage}">マイページ</a></li>
-                    <li><a th:href="@{/orders}">購入履歴</a></li>
+                    <li><a th:href="@{/my-page}">マイページ</a></li>
+                    <li><a th:href="@{/my-page/orders}">購入履歴</a></li>
 
                     <li sec:authorize="hasRole('ADMIN')">
                         <a th:href="@{/admin/dashboard}">管理画面</a>

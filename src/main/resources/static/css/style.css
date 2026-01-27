@@ -1,17 +1,29 @@
-/* --- 変数とリセット --- */
+/* =========================================
+   変数定義 (Color Palette)
+   ========================================= */
 :root {
-    --primary-color: #4a6fa5;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --danger-color: #dc3545;
-    --price-color: #e63946;
-    --bg-color: #f8f9fa;
-    --card-bg: #ffffff;
-    --text-main: #333;
-    --text-sub: #666;
-    --border-color: #dee2e6;
+    --primary-color: #4a6fa5;       /* メインカラー: 落ち着いた青 */
+    --primary-hover: #3b5a84;       /* ホバー時 */
+    --secondary-color: #95a5a6;     /* グレー（戻るボタン等） */
+    --accent-color: #e67e22;        /* アクセント（バッジ等） */
+    --success-color: #27ae60;       /* 成功・安全 */
+    --danger-color: #c0392b;        /* 削除・エラー */
+    --price-color: #e74c3c;         /* 価格表示 */
+    --star-color: #f1c40f;          /* 評価の星 */
+    
+    --bg-color: #f4f7f6;            /* 全体の背景 */
+    --card-bg: #ffffff;             /* カード背景 */
+    --text-main: #2c3e50;           /* メインテキスト */
+    --text-sub: #7f8c8d;            /* サブテキスト */
+    --border-color: #dcdcdc;        /* 枠線 */
+    
+    --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+    --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
 }
 
+/* =========================================
+   基本設定 (Reset & Base)
+   ========================================= */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     margin: 0;
@@ -19,285 +31,92 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* --- レイアウト --- */
-.container {
-    max-width: 1000px;
-    margin: 40px auto;
-    background-color: var(--card-bg);
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-}
-
-h1 {
-    font-size: 24px;
+/* リンクの基本スタイル */
+a {
     color: var(--primary-color);
-    margin-bottom: 25px;
-    border-left: 5px solid var(--primary-color);
-    padding-left: 15px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }
 
-h2 {
-    font-size: 20px;
-    margin-top: 30px;
+/* 画像のレスポンシブ対応 */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =========================================
+   ヘッダー & ハンバーガーメニュー (Navigation)
+   ========================================= */
+header {
+    background-color: #fff;
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-/* --- ボタン類 --- */
-.button, button {
-    display: inline-block;
     padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    text-align: center;
-}
-
-/* プライマリ（メイン） */
-.button, button[type="submit"]:not(.secondary):not(.danger) {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-.button:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
-}
-
-/* セカンダリ（戻るなど） */
-.button.secondary {
-    background-color: #e9ecef;
-    color: var(--secondary-color);
-}
-
-/* 危険（ログアウト・削除など） */
-.button.danger {
-    background-color: #fff0f0;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-}
-
-.button.danger:hover {
-    background-color: var(--danger-color);
-    color: #fff;
-}
-
-/* --- フォーム関連 --- */
-input[type="text"],
-input[type="password"],
-input[type="number"],
-select,
-textarea {
-    width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-sizing: border-box; /* 枠線を含めたサイズ計算 */
-}
-
-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
-}
-
-.error-message {
-    background-color: #fceaea;
-    color: var(--danger-color);
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    font-size: 14px;
-}
-
-.success-message {
-    background-color: #eafaf1;
-    color: var(--success-color);
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-}
-
-/* --- 商品グリッド (重要) --- */
-.item-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.item-card {
-    background: #fff;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.item-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-}
-
-.item-card a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.item-card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    background-color: #f1f1f1;
-}
-
-.item-card h3 {
-    font-size: 15px;
-    margin: 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.item-card .price {
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--price-color);
-    margin: 0 10px;
-}
-
-.item-card .status {
-    font-size: 12px;
-    color: var(--text-sub);
-    margin: 5px 10px 10px;
-}
-
-/* --- テーブル --- */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-table th {
-    background-color: #f8f9fa;
-    color: var(--primary-color);
-    text-align: left;
-    padding: 15px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-table td {
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-/* --- チャットボックス --- */
-.chat-box {
-    background: #f1f3f5;
-    padding: 20px;
-    border-radius: 10px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.chat-message {
-    margin-bottom: 15px;
-    padding: 10px 15px;
-    border-radius: 15px;
-    max-width: 80%;
-}
-
-.my-message {
-    background-color: var(--primary-color);
-    color: white;
-    margin-left: auto;
-}
-
-.other-message {
-    background-color: white;
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-}
-
-.sender-name { font-weight: bold; font-size: 12px; display: block; }
-.message-time { font-size: 10px; opacity: 0.8; }
-
-/* --- ページネーション --- */
-.pagination {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.pagination a, .current-page {
-    padding: 8px 15px;
-    margin: 0 5px;
-    border-radius: 5px;
-    text-decoration: none;
-    border: 1px solid var(--border-color);
-}
-
-.current-page {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* --- ナビゲーション --- */
-.main-nav {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+header .logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
 .hamburger-menu {
     position: relative;
 }
 
-/* チェックボックス非表示（header用IDに合わせる） */
 #menu-toggle-header {
     display: none;
 }
 
-/* 三本線 */
 .menu-icon {
     width: 30px;
+    height: 22px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    justify-content: space-between;
+    z-index: 1002;
+    position: relative;
 }
 
 .menu-icon span {
+    display: block;
     height: 3px;
-    background: #333;
+    width: 100%;
+    background-color: var(--primary-color);
     border-radius: 2px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-/* メニュー本体 */
 .menu {
     position: absolute;
     top: 40px;
     right: 0;
-    width: 200px;
-    background: #fff;
-    border: 1px solid #ddd;
-    display: none;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-
-    /* ちょいアニメ */
+    width: 220px;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    padding: 10px 0;
     opacity: 0;
+    visibility: hidden;
     transform: translateY(-10px);
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    z-index: 1001;
 }
 
 .menu ul {
@@ -306,31 +125,470 @@ table td {
     padding: 0;
 }
 
-.menu li {
-    border-bottom: 1px solid #eee;
-}
-
-.menu li a,
-.logout-btn {
+.menu li a, 
+.menu li button {
     display: block;
-    padding: 12px;
-    text-decoration: none;
-    color: #333;
+    padding: 12px 20px;
+    color: var(--text-main);
+    font-size: 14px;
     background: none;
     border: none;
     width: 100%;
     text-align: left;
     cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s;
 }
 
-.menu li a:hover,
-.logout-btn:hover {
-    background: #f5f5f5;
+.menu li a:hover, 
+.menu li button:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
 }
 
-/* チェックされたら表示 */
-#menu-toggle-header:checked + .menu-icon + .menu {
-    display: block;
+/* ハンバーガー開閉アクション */
+#menu-toggle-header:checked ~ .menu {
     opacity: 1;
+    visibility: visible;
     transform: translateY(0);
+}
+
+#menu-toggle-header:checked + .menu-icon span:nth-child(1) {
+    transform: translateY(9.5px) rotate(45deg);
+}
+#menu-toggle-header:checked + .menu-icon span:nth-child(2) {
+    opacity: 0;
+}
+#menu-toggle-header:checked + .menu-icon span:nth-child(3) {
+    transform: translateY(-9.5px) rotate(-45deg);
+}
+
+/* =========================================
+   レイアウト (Layout)
+   ========================================= */
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+/* ログイン・登録用の狭いコンテナ */
+.container:has(form[action*="login"]), 
+.container:has(form[action*="register"]) {
+    max-width: 500px;
+}
+
+/* 見出し */
+h1 {
+    font-size: 26px;
+    color: var(--text-main);
+    border-left: 6px solid var(--primary-color);
+    padding-left: 15px;
+    margin-bottom: 30px;
+}
+
+h2 {
+    font-size: 20px;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--bg-color);
+    padding-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* =========================================
+   ボタン (Buttons)
+   ========================================= */
+.button-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.button, button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+/* メインボタン */
+.button, button[type="submit"] {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(74, 111, 165, 0.2);
+}
+.button:hover, button[type="submit"]:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(74, 111, 165, 0.3);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* セカンダリボタン（グレー） */
+.button.secondary, button.secondary {
+    background-color: #ecf0f1;
+    color: var(--text-main);
+    box-shadow: none;
+}
+.button.secondary:hover, button.secondary:hover {
+    background-color: #d0d3d4;
+    transform: translateY(-2px);
+}
+
+/* 危険ボタン（赤） */
+.button.danger, button.danger {
+    background-color: #fff;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    box-shadow: none;
+}
+.button.danger:hover, button.danger:hover {
+    background-color: var(--danger-color);
+    color: #fff;
+}
+
+/* =========================================
+   フォーム (Forms)
+   ========================================= */
+form p {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #fafafa;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+}
+
+/* フィルターフォーム（商品一覧用） */
+.filter-form {
+    background-color: var(--bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filter-form div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-form label {
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: var(--text-sub);
+}
+
+/* =========================================
+   アラートメッセージ (Alerts)
+   ========================================= */
+.error-message, .success-message {
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.4s ease;
+}
+
+.error-message {
+    background-color: #fdedec;
+    color: var(--danger-color);
+    border-left: 5px solid var(--danger-color);
+}
+
+.success-message {
+    background-color: #eafaf1;
+    color: var(--success-color);
+    border-left: 5px solid var(--success-color);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   テーブル (Tables)
+   ========================================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--border-color);
+}
+
+thead { background-color: #f1f5f9; }
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    color: var(--primary-color);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+tr:last-child td { border-bottom: none; }
+
+tbody tr:nth-child(even) { background-color: #fcfcfc; }
+tbody tr:hover { background-color: #f1f9ff; }
+
+td span {
+    color: var(--star-color);
+    font-size: 16px;
+}
+
+/* =========================================
+   商品グリッド (Item Grid)
+   ========================================= */
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.item-card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    border-color: var(--primary-color);
+}
+
+.item-card a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.item-card img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.item-card h3 {
+    font-size: 16px;
+    margin: 12px 15px 5px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.item-card .price {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--price-color);
+    margin: 0 15px 5px;
+}
+
+.item-card .status {
+    font-size: 12px;
+    margin: 0 15px 15px;
+    color: var(--text-sub);
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+/* =========================================
+   商品詳細ページ (Item Detail)
+   ========================================= */
+.item-detail {
+    margin-top: 20px;
+    background-color: #fff;
+}
+
+@media (min-width: 768px) {
+    .item-detail {
+        display: grid;
+        grid-template-columns: 450px 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+
+    .item-detail .item-image {
+        grid-column: 1;
+        grid-row: 1 / 10;
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #eee;
+    }
+    
+    .item-detail > *:not(.item-image) { grid-column: 2; }
+    
+    .item-detail .button-group {
+        grid-column: 2;
+        margin-top: 20px;
+    }
+}
+
+.item-detail .price {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--price-color);
+    margin: 10px 0 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    display: block;
+}
+
+.item-detail p { margin-bottom: 12px; color: var(--text-main); }
+.item-detail p span { color: var(--text-main); font-weight: 500; }
+
+/* =========================================
+   チャット (Chat)
+   ========================================= */
+.chat-box {
+    background-color: #eef2f5;
+    padding: 20px;
+    border-radius: 12px;
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dce4ec;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    padding: 12px 18px;
+    border-radius: 18px;
+    max-width: 75%;
+    position: relative;
+    font-size: 15px;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.my-message {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.my-message .sender-name, 
+.my-message .message-time { color: rgba(255, 255, 255, 0.8); }
+
+.other-message {
+    align-self: flex-start;
+    background-color: white;
+    color: var(--text-main);
+    border-bottom-left-radius: 4px;
+}
+
+.sender-name { display: block; font-size: 11px; font-weight: bold; margin-bottom: 4px; opacity: 0.8; }
+.message-time { display: block; font-size: 10px; text-align: right; margin-top: 4px; opacity: 0.7; }
+
+/* =========================================
+   ページネーション & ナビ (Pagination & Nav)
+   ========================================= */
+.pagination { text-align: center; margin-top: 40px; }
+.pagination a, .current-page {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 4px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+    background: #fff;
+    transition: all 0.2s;
+}
+.pagination a:hover { background-color: #f0f0f0; }
+.current-page { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+.main-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+}
+
+/* =========================================
+   Stripe & レスポンシブ (Stripe & Mobile)
+   ========================================= */
+#payment-element { margin-bottom: 24px; min-height: 200px; }
+
+@media (max-width: 600px) {
+    .container { margin: 15px; padding: 20px; }
+    .filter-form { flex-direction: column; align-items: stretch; }
+    .button-group { flex-direction: column; width: 100%; }
+    .button, button { width: 100%; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+    .item-detail { display: block; }
 }

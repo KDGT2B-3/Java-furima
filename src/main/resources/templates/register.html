@@ -1,0 +1,54 @@
+<!-- src/main/resources/templates/register.html -->
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会員登録 - フリマアプリ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <h1>フリマアプリ</h1>
+        <h2>会員登録</h2>
+        
+        <!-- エラーメッセージ -->
+        <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+        
+        <!-- 登録フォーム -->
+        <form th:action="@{/register}" method="post">
+            
+            <!-- 名前 -->
+            <p>
+                <label for="name">名前<span style="color:red;">*</span>:</label>
+                <input type="text" id="name" name="name" th:value="${name}" required>
+            </p>
+            
+            <!-- メールアドレス -->
+            <p>
+                <label for="email">メールアドレス<span style="color:red;">*</span>:</label>
+                <input type="email" id="email" name="email" th:value="${email}" required>
+            </p>
+            
+            <!-- パスワード -->
+            <p>
+                <label for="password">パスワード<span style="color:red;">*</span>:</label>
+                <input type="password" id="password" name="password" minlength="6" required>
+                <small style="color:#666;">6文字以上で入力してください</small>
+            </p>
+            
+            <!-- パスワード（確認） -->
+            <p>
+                <label for="confirmPassword">パスワード（確認）<span style="color:red;">*</span>:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" minlength="6" required>
+            </p>
+            
+            <!-- ボタン群 -->
+            <div class="button-group">
+                <button type="submit">登録する</button>
+                <a th:href="@{/login}" class="button secondary">ログイン画面へ戻る</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
