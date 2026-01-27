@@ -262,7 +262,7 @@ table td {
     position: relative;
 }
 
-/* チェックボックス非表示（header用IDに合わせる） */
+/* チェックボックス非表示 */
 #menu-toggle-header {
     display: none;
 }
@@ -270,20 +270,49 @@ table td {
 /* 三本線 */
 .menu-icon {
     width: 30px;
+    height: 22px;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    position: relative;
+    display: block;
 }
 
 .menu-icon span {
+    position: absolute;
+    left: 0;
+    width: 100%;
     height: 3px;
     background: #333;
     border-radius: 2px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
-/* メニュー本体 */
+/* 各線の位置 */
+.menu-icon span:nth-child(1) {
+    top: 0;
+}
+.menu-icon span:nth-child(2) {
+    top: 9px;
+}
+.menu-icon span:nth-child(3) {
+    top: 18px;
+}
+
+/* ===== クリック後：×に変形 ===== */
+#menu-toggle-header:checked + .menu-icon span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 9px;
+}
+
+#menu-toggle-header:checked + .menu-icon span:nth-child(2) {
+    opacity: 0;
+}
+
+#menu-toggle-header:checked + .menu-icon span:nth-child(3) {
+    transform: rotate(-45deg);
+    top: 9px;
+}
+
+/* ===== メニュー本体 ===== */
 .menu {
     position: absolute;
     top: 40px;
@@ -291,13 +320,12 @@ table td {
     width: 200px;
     background: #fff;
     border: 1px solid #ddd;
-    display: none;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 
-    /* ちょいアニメ */
     opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.2s ease;
+    transform: translateY(-15px);
+    pointer-events: none;
+    transition: all 0.3s ease;
 }
 
 .menu ul {
@@ -310,7 +338,7 @@ table td {
     border-bottom: 1px solid #eee;
 }
 
-.menu li a,
+.menu a,
 .logout-btn {
     display: block;
     padding: 12px;
@@ -323,14 +351,14 @@ table td {
     cursor: pointer;
 }
 
-.menu li a:hover,
+.menu a:hover,
 .logout-btn:hover {
     background: #f5f5f5;
 }
 
-/* チェックされたら表示 */
+/* ===== 表示アニメーション ===== */
 #menu-toggle-header:checked + .menu-icon + .menu {
-    display: block;
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
 }
