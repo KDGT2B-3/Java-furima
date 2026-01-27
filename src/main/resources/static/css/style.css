@@ -262,8 +262,8 @@ table td {
     position: relative;
 }
 
-/* チェックボックス非表示 */
-#menu-toggle {
+/* チェックボックス非表示（header用IDに合わせる） */
+#menu-toggle-header {
     display: none;
 }
 
@@ -280,6 +280,7 @@ table td {
     height: 3px;
     background: #333;
     border-radius: 2px;
+    transition: all 0.2s ease;
 }
 
 /* メニュー本体 */
@@ -292,6 +293,11 @@ table td {
     border: 1px solid #ddd;
     display: none;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+    /* ちょいアニメ */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
 }
 
 .menu ul {
@@ -323,6 +329,8 @@ table td {
 }
 
 /* チェックされたら表示 */
-#menu-toggle:checked + .menu-icon + .menu {
+#menu-toggle-header:checked + .menu-icon + .menu {
     display: block;
+    opacity: 1;
+    transform: translateY(0);
 }
