@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-	// パスワードエンコーダーを定義（これがないと認証が動きません）
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -24,15 +23,18 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 				.authorizeHttpRequests(auth -> auth
-						// 静的リソースとログイン画面は全員許可
-						.requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+						// 未ログインでもアクセス可能なパス（ログイン、会員登録、静的リソース）
+						.requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/webjars/**")
+						.permitAll()
 						// 管理者専用パス
 						.requestMatchers("/admin/**").hasRole("ADMIN")
 						// それ以外はすべて認証（ログイン）が必要
 						.anyRequest().authenticated())
 				.formLogin(form -> form
 						.loginPage("/login")
-						// ログイン成功時にカスタムハンドラー（下のBean）を呼び出す
+						// ログイン時の入力項目名を email に変更（デフォルトは username）
+						.usernameParameter("email")
+						// ログイン成功時の遷移先をロールごとに振り分ける
 						.successHandler(customAuthenticationSuccessHandler())
 						.permitAll())
 				.logout(logout -> logout
@@ -46,6 +48,7 @@ public class SecurityConfig {
 
 	/**
 	 * ログイン成功後の振り分けロジック
+	 * 管理者は管理画面、一般ユーザーは商品一覧へリダイレクト
 	 */
 	@Bean
 	public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
