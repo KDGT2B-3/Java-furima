@@ -1,11 +1,12 @@
 <div th:fragment="header">
-
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    
     <header class="header">
-		<h1 class="logo">
-		    <a th:href="@{/items}">
-		        <img th:src="@{/images/logo.png}" alt="フリマアプリ">
-		    </a>
-		</h1>
+        <h1 class="logo">
+            <a th:href="@{/items}">
+                <img th:src="@{/images/logo.png}" alt="フリマアプリ">
+            </a>
+        </h1>
 
         <div class="hamburger-menu">
             <input type="checkbox" id="menu-toggle-header">
